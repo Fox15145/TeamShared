@@ -1,0 +1,59 @@
+private void OpenAccessBDD()
+        {
+            string strDSN = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source = \\DCEW1164FSDATA\Share\Projects\Supports_TranslationTable\TTable\ILGM_EXPORT_PANEL_INSTORE_ALL_TRANSLATIONS_20191119_010041_PART1.MDB";
+            string strSQL = "SELECT DISTINCT ";
+            strSQL += "(FORMAT(NOW(), \"yyyyq\") - FORMAT(TRANSLATION_TABLE.[CREATED], \"yyyyq\")) AS ID ";
+            strSQL += "FROM TRANSLATION_TABLE ";
+            strSQL += "WHERE( ";
+            strSQL += "SELECT COUNT(*) ";
+            strSQL += "FROM TRANSLATION_TABLE ";
+            strSQL += "WHERE TRANSLATION_TABLE.[PG_ID] IS NULL) = 0 ";
+            strSQL += "ORDER BY 1 ";
+            // create Objects of ADOConnection and ADOCommand  
+            OleDbConnection myConn = new OleDbConnection(strDSN);
+            OleDbDataAdapter myCmd = new OleDbDataAdapter(strSQL, myConn);
+            myConn.Open();
+            DataSet dtSet = new DataSet();
+            myCmd.Fill(dtSet, "Developer");
+            DataTable dTable = dtSet.Tables[0];
+
+            StringBuilder destLines = new StringBuilder();
+
+            destLines.AppendLine("TRANSLATION_ID;OBJECT_ID;COMPANY_ID;EAN_INSTORE;GFK_PG;PG_ID;RPG;GFK_CODE;PCO_CODE;OBJECT_TYPE;PRICE_INDEX;PACKING;ACTIVITY;OPID;CREATED;MODIFIED;ACTIVITY_DATE;COUNTRY;MMD_CONFIRMED;Z_ERROR_CHECK_DATE;TSC_CONFIRMED;FIRST_PERIOD;ORIG_INSTORE_CODE;ITEM_ID");
+            foreach (DataRow row in dTable.Rows)
+            {
+                string line = row["TRANSLATION_ID"].ToString();
+                line = string.Join(";", row["OBJECT_ID"].ToString());
+                line = string.Join(";", row["OBJECT_ID"].ToString());
+                line = string.Join(";", row["COMPANY_ID"].ToString());
+                line = string.Join(";", row["EAN_INSTORE"].ToString());
+                line = string.Join(";", "");
+                line = string.Join(";", row["PG_ID"].ToString());
+                line = string.Join(";", row["RPG"].ToString());
+                line = string.Join(";", "");
+                line = string.Join(";", "");
+                line = string.Join(";", row["OBJECT_TYPE"].ToString());
+                line = string.Join(";", row["PRICE_INDEX"].ToString());
+                line = string.Join(";", row["PACKING"].ToString());
+                line = string.Join(";", row["ACTIVITY"].ToString());
+                line = string.Join(";", row["OPID"].ToString());
+                line = string.Join(";", row["CREATED"].ToString());
+                line = string.Join(";", row["MODIFIED"].ToString());
+                line = string.Join(";", row["ACTIVITY_DATE"].ToString());
+                line = string.Join(";", row["COUNTRY"].ToString());
+                line = string.Join(";", "");
+                line = string.Join(";", row["Z_ERROR_CHECK_DATE"].ToString());
+                line = string.Join(";", row["TSC_CONFIRMED"].ToString());
+                line = string.Join(";", row["FIRST_PERIOD"].ToString());
+                line = string.Join(";", row["ORIG_INSTORE_CODE"].ToString());
+                line = string.Join(";", row["ITEM_ID"].ToString());
+
+                destLines.AppendLine(line);
+            }
+            //dataGridView1.DataSource = dtSet.Tables["Developer"].DefaultView;
+            myConn.Close();
+
+            string destFile = @"\\DCEW1164FSDATA\Share\Projects\Supports_TranslationTable\TTable\ILGM_EXPORT_PANEL_INSTORE_ALL_TRANSLATIONS_20191119_010041_PART1.txt";
+            File.WriteAllText(destFile, destLines.ToString());
+            destLines.Clear();
+        }
